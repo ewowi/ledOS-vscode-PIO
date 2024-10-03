@@ -108,7 +108,9 @@ LedOS.current_hightlight=&highLighting[0];
           addExternal("print",externalType::function,(void*)__print);
                   vector<string> j;
 //parseasm(&LedOS,j);
- SCExecutable.setPrekill(pre,post);
+//  SCExecutable.setPrekill(pre,post);
+runningPrograms.setPrekill(pre, post);
+runningPrograms.setFunctionToSync(show);
 LedOS.script.clear();
 }
 int k=4;
