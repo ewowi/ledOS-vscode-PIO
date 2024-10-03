@@ -5,7 +5,7 @@
 #include "FastLED.h"
 #include "I2SClocklessLedDriver.h"
 #include "ledOS.h"
-#include "parser.h"
+#include "newParser.h"
 
 CRGB leds[NUMSTRIPS*NUM_LEDS_PER_STRIP];
 int pins[16]={16};
