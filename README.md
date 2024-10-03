@@ -19,7 +19,7 @@ Run LedOS (On Mac)
 - type ```screen /dev/cu.usbserial-0001 115200``` (cu.usbserial-0001 the usb port you see in vscode)
 - type help:
 
-  <img width="500" alt="image" src="https://github.com/user-attachments/assets/92063a4d-f6a7-48e9-b8f6-88f09642b373">
+  <img width="500" alt="image" src="https://github.com/user-attachments/assets/ed52c2d8-20d7-4740-9fcf-8e646aa97c59">
 
 - type ```ls```
 - load the file you want to run
