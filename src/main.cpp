@@ -1,15 +1,63 @@
-#define NUM_LEDS_PER_STRIP 256
-#define NUM_STRIPS 1
-#define NUM_LEDS (NUM_LEDS_PER_STRIP * NUM_STRIPS)
+#define NUM_LEDS_PER_STRIPS 256
+#ifdef GO_VIRTUAL
+  #define CORE_DEBUG_LEVEL 1 //used in I2SClocklessVirtualLedDriver.h
 
-#include "FastLED.h"
-#include "I2SClocklessLedDriver.h"
+  #define USE_FASTLED
+  #define NB_DMA_BUFFER 10
+  #define BRIGHTNESS_BIT 5
+  #define NBIS2SERIALPINS 1 //6
+  #define LED_WIDTH 128
+  #define LED_HEIGHT 96
+  #include "esp_heap_caps.h"
+  #define I2S_MAPPING_MODE (I2S_MAPPING_MODE_OPTION_MAPPING_IN_MEMORY)
+  #include "I2SClocklessVirtualLedDriver.h"
+  #include "math.h"
+  #define NUM_LEDS (LED_HEIGHT * LED_WIDTH)
+  #define LATCH_PIN 27
+  #define CLOCK_PIN 26
+
+  uint16_t mapfunction(uint16_t pos) {
+    int panelnumber = pos / 256;
+    int datainpanel = pos % 256;
+    int yp = panelnumber / 8;
+    int Xp = panelnumber % 8;
+    int Y = yp;
+    int X = Xp;
+
+    int x = datainpanel % 16;
+    int y = datainpanel / 16;
+
+    if (y % 2 == 0) {
+      Y = Y * 16 + y;
+      X = X * 16 + x;
+    } else {
+      Y = Y * 16 + y;
+      X = X * 16 + 16 - x - 1;
+    }
+
+    return Y * 16 * 8 + X;
+  }
+
+  Pixel leds[LED_HEIGHT * LED_WIDTH];
+  int Pins[6] = { 14, 12, 13, 25, 33, 32 };
+
+
+  I2SClocklessVirtualLedDriver driver;
+#else
+  #define NUM_STRIPS 1
+  #define NUM_LEDS (NUM_LEDS_PER_STRIP * NUM_STRIPS)
+
+  #include "FastLED.h"
+  #include "I2SClocklessLedDriver.h"
+
+  CRGB leds[NUM_STRIPS*NUM_LEDS_PER_STRIP];
+  int pins[16]={16};
+  I2SClocklessLedDriver driver;
+#endif
+
 #include "ledOS.h"
 #include "newParser.h"
 
-CRGB leds[NUMSTRIPS*NUM_LEDS_PER_STRIP];
-int pins[16]={16};
-I2SClocklessLedDriver driver;
 
 static void showError(int line,uint32_t size, uint32_t got)
 {
@@ -93,7 +141,12 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
   while (!Serial) {};
-      driver.initled((uint8_t*)leds,pins,NUMSTRIPS,NUM_LEDS_PER_STRIP,ORDER_GRB);
+  #ifdef GO_VIRTUAL
+    driver.initled(leds, Pins, CLOCK_PIN, LATCH_PIN);
+    driver.setMapLed(&mapfunction);
+  #else
+    driver.initled((uint8_t*)leds,pins,NUM_STRIPS,NUM_LEDS_PER_STRIP,ORDER_GRB);
+  #endif
     driver.setBrightness(30);
 LedOS.current_hightlight=&highLighting[0];
  addExternal("leds", externalType::value, (void *)leds);
