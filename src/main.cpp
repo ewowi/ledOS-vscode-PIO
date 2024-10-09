@@ -5,7 +5,7 @@
   #define USE_FASTLED
   #define NB_DMA_BUFFER 10
   #define BRIGHTNESS_BIT 5
-  #define NBIS2SERIALPINS 1 //6
+  #define NBIS2SERIALPINS 6
   #define LED_WIDTH 128
   #define LED_HEIGHT 96
   #include "esp_heap_caps.h"
@@ -16,26 +16,34 @@
   #define LATCH_PIN 27
   #define CLOCK_PIN 26
 
-  uint16_t mapfunction(uint16_t pos) {
+  uint16_t mapfunction(uint16_t pos)
+  {
     int panelnumber = pos / 256;
     int datainpanel = pos % 256;
+    int Xp = 7 - panelnumber % 8;
+
+    // Xp=Xp+1;
+    // if (Xp==8) {Xp=0;}
+
     int yp = panelnumber / 8;
-    int Xp = panelnumber % 8;
-    int Y = yp;
-    int X = Xp;
+    int X = Xp; //panel on the x axis
+    int Y = yp; //panel on the y axis
 
-    int x = datainpanel % 16;
-    int y = datainpanel / 16;
+    int y = datainpanel % 16;
+    int x = datainpanel / 16;
 
-    if (y % 2 == 0) {
+    if (x % 2 == 0) //serpentine
+    {
       Y = Y * 16 + y;
       X = X * 16 + x;
-    } else {
-      Y = Y * 16 + y;
-      X = X * 16 + 16 - x - 1;
+    }
+    else
+    {
+      Y = Y * 16 + 16 -y-1;
+      X = X * 16 + x;
     }
 
-    return Y * 16 * 8 + X;
+    return (95-Y) * 16 * 8 + (127-X);
   }
 
   Pixel leds[LED_HEIGHT * LED_WIDTH];
