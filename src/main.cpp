@@ -22,8 +22,9 @@
     int datainpanel = pos % 256;
     int Xp = 7 - panelnumber % 8;
 
-    // Xp=Xp+1;
-    // if (Xp==8) {Xp=0;}
+    //fix for ewowi panels
+    Xp=Xp+1;
+    if (Xp==8) {Xp=0;}
 
     int yp = panelnumber / 8;
     int X = Xp; //panel on the x axis
@@ -155,7 +156,7 @@ void setup() {
   #else
     driver.initled((uint8_t*)leds,pins,NUM_STRIPS,NUM_LEDS_PER_STRIP,ORDER_GRB);
   #endif
-    driver.setBrightness(30);
+    driver.setBrightness(10);
 LedOS.current_hightlight=&highLighting[0];
  addExternal("leds", externalType::value, (void *)leds);
   addExternal("show", externalType::function, (void *)&show);
@@ -167,15 +168,17 @@ LedOS.current_hightlight=&highLighting[0];
           addExternal("resetStat",externalType::function,(void*)&resetShowStats);
           addExternal("error",externalType::function,(void*)&showError);
           addExternal("print",externalType::function,(void*)__print);
-                  vector<string> j;
+              addExternal("millis",externalType::function, (void *)millis);
+
+                  // vector<string> j;
 //parseasm(&LedOS,j);
 //  SCExecutable.setPrekill(pre,post);
 runningPrograms.setPrekill(pre, post);
 runningPrograms.setFunctionToSync(show);
 LedOS.script.clear();
 }
-int k=4;
-int h=4;
+// int k=4;
+// int h=4;
 void loop() {
   // put your main code here, to run repeatedly:
 LedOS.run();

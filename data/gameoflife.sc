@@ -92,25 +92,29 @@ else
 
 int main()
 {
-resetStat();
-
+   resetStat();
   
-   
+   while (2>1) { 
+     for(int i=0;i<width * height ;i++) 
+     {
+         copy[i]=0;
+     }
    for (int h = 0; h < height; h++)
    {
       int pos = h * width + width / 2-20;
-      copy[pos] = 1;
+      //copy[pos] = 1;
       copy[pos+20]=1;
-      copy[pos+40]=1;
+      //copy[pos+40]=1;
   }
 
-   clear();
-   show();
+   //clear();
+   //show();
    for (int i = 0; i < 501; i++)
    {
    //CRGB color=hsv(i,255,255);
       create_leds(i);
       show();
 //      __feed();
+   }
    }
 }
