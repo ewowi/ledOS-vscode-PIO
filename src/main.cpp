@@ -1,6 +1,7 @@
-#define NUM_LEDS_PER_STRIPS 256
+#define NUM_LEDS_PER_STRIP 256
 #ifdef GO_VIRTUAL
   #define CORE_DEBUG_LEVEL 1 //used in I2SClocklessVirtualLedDriver.h
+  #define DELTA_OFFSET_LATCH 0
 
   #define USE_FASTLED
   #define NB_DMA_BUFFER 10
@@ -65,7 +66,7 @@
 #endif
 
 #include "ledOS.h"
-#include "newParser.h"
+#include "ESPLiveScript.h"
 
 
 static void showError(int line,uint32_t size, uint32_t got)
