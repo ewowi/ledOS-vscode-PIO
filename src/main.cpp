@@ -4,13 +4,20 @@
   #define DELTA_OFFSET_LATCH 0
 
   #define USE_FASTLED
-  #define NB_DMA_BUFFER 10
+  #define __NB_DMA_BUFFER 10
   #define BRIGHTNESS_BIT 5
   #define NBIS2SERIALPINS 6
   #define LED_WIDTH 128
   #define LED_HEIGHT 96
   #include "esp_heap_caps.h"
   #define I2S_MAPPING_MODE (I2S_MAPPING_MODE_OPTION_MAPPING_IN_MEMORY)
+
+  #define ICVD_LOGD(tag, format, ...) Serial.printf(format, ##__VA_ARGS__)
+  #define ICVD_LOGE(tag, format, ...) Serial.printf(format, ##__VA_ARGS__)
+  #define ICVD_LOGV(tag, format, ...) Serial.printf(format, ##__VA_ARGS__)
+  #define ICVD_LOGI(tag, format, ...) Serial.printf(format, ##__VA_ARGS__)
+
+
   #include "I2SClocklessVirtualLedDriver.h"
   #include "math.h"
   #define NUM_LEDS (LED_HEIGHT * LED_WIDTH)
@@ -23,9 +30,7 @@
     int datainpanel = pos % 256;
     int Xp = 7 - panelnumber % 8;
 
-    //fix for ewowi panels
-    Xp=Xp+1;
-    if (Xp==8) {Xp=0;}
+    Xp=(Xp+1)%8; //fix for ewowi panels
 
     int yp = panelnumber / 8;
     int X = Xp; //panel on the x axis
@@ -45,7 +50,8 @@
       X = X * 16 + x;
     }
 
-    return (95-Y) * 16 * 8 + (127-X);
+    // return (95-Y) * 16 * 8 + (127-X);
+    return Y * 128 + X;
   }
 
   Pixel leds[LED_HEIGHT * LED_WIDTH];
@@ -69,10 +75,10 @@
 #include "ESPLiveScript.h"
 
 
-static void showError(int line,uint32_t size, uint32_t got)
-{
-  LedOS.pushToConsole(string_format ("Overflow error line %d max size: %d got %d",line,size,got),true);
-}
+// static void showError(int line,uint32_t size, uint32_t got)
+// {
+//   LedOS.pushToConsole(string_format ("Overflow error line %d max size: %d got %d",line,size,got),true);
+// }
 static void displayfloat(float j)
 {
  LedOS.pushToConsole(string_format ("display float %f",j),true);

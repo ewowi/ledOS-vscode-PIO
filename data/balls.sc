@@ -1,4 +1,3 @@
-import rand
 external CRGB *leds;
 external void show();
 external void clear();
@@ -6,122 +5,138 @@ external CRGB hsv(int h, int s, int v);
 external float sin(float angle);
 external void display(int g);
 external void resetStat();
-define nb_balls 110
-define rmax 10
-define rmin 8
+external void dp(float h);
+import rand
+define nb_balls 100
+define rmax 6
+define rmin 4
 define width 128
 define height 96
 define panel_width 128 
-
-float vx[nb_balls];
-float vy[nb_balls];
-float xc[nb_balls];
-float yc[nb_balls];
-float r[nb_balls];
-int color[nb_balls];
-//CRGB cc;
-
-void drawBall(float xc, float yc, float r, int c)
+int slider1;
+struct ball {
+   float vx;
+   float vy;
+   float xc;
+   float yc;
+   float r;
+   int color;
+   void drawBall( )
 {
-   int startx = (float)(xc - r);
-   int r2 =(float) (r * r);
-   float r4=r*r*r*r;
-   // int endx=(float)(xc+r);
-   int starty = (float)(yc - r);
-   // int endy=(float)(yc+r);
+   int startx = xc - r;
+   float r2 =r * r;
+   float r4=r^4;
+   int starty = yc - r;
    int _xc=xc;
    int _yc=yc;
-   CRGB *_leds=leds;
-   for (int i = startx; i <= _xc; i++)
+   for (int i =startx; i <=_xc; i++)
    {
       for (int j = starty; j <= _yc; j++)
       {
          int v;
 
-         int distance = (float)((i - xc) * (i - xc) + (j - yc) * (j - yc));
+          float distance = (i - xc)^2+(j-yc)^2;
   
          if (distance <= r2)
          {
-            v = (float)(255 * (1 - distance * distance / (r4)));
-            CRGB cc=hsv(c,255,v);
-            _leds[i + j * panel_width] = cc;
-            _leds[(int)(2 * xc - i) + j * panel_width] = cc;
-            _leds[(int)(2 * xc - i) + (int)(2 * yc - j) * panel_width] = cc;
-            _leds[i + (int)(2 * yc - j) * panel_width] = cc;
+            v = 255 * (1 - distance^2 / (r4));
+            CRGB cc=hsv(color,255,v);
+            leds[i + j * panel_width] = cc;
+           // int h=(int)(2 * xc - i) + j * panel_width;
+            leds[(int)(2 * xc - i) + j * panel_width] = cc;
+          // h=(int)(2 * xc - i) + (int)(2 * yc - j) * panel_widthsdfsdf;
+            leds[(int)(2 * xc - i) + (int)(2 * yc - j) * panel_width] = cc;
+           // h=i + (int)(2 * yc - j) * panel_width;
+            leds[i + (int)(2 * yc - j) * panel_width] = cc;
          }
       }
    }
+ }
+ void updateBall()
+{
+
+//drawBall();
+//return;   
+   xc = xc + vx;
+   yc = yc + vy;
+   if (xc >= width - r - 1)
+   {
+      xc =width - r - 1.1;
+       vx = -vx;
+   }
+   if (xc < r + 1)
+   {
+      xc=r + 1.1;
+      vx = -vx;
+
+   }
+   if (yc >= height - r - 1)
+   {
+      yc=height - r - 1.1;
+      vy = -vy;
+   }
+   if (yc < r + 1)
+   {
+      yc = r + 1.1;
+      vy = -vy;
+    }
+
+   drawBall();
 }
 
-void updateBall(int index)
-{
-///   float *__r=r;
- //  float £*__xc=xc;
-  // float *__yc=yc;
- //  float *__vx=vx;
- //  float *__vy=vy;
-   
-   float _r =r[index];
-   float _xc = xc[index];
-   float _yc = yc[index];
-   float _vx = vx[index];
-   float _vy = vy[index];
-
-   _xc = _xc + _vx;
-   _yc = _yc + _vy;
-   if ((int)(_xc) >= (int)(width - _r - 1))
-   {
-      _xc =width - _r - 1;
-      _vx = -_vx;
-   }
-   if ((int)(_xc) < (int)(_r + 1))
-   {
-      _xc=_r + 1;
-      _vx = -_vx;
-   }
-   if ((int)(_yc) >= (int)(height - _r - 1))
-   {
-      _yc=height - _r - 1;
-      _vy = -_vy;
-   }
-   if ((int)(_yc) < (int)(_r + 1))
-   {
-      _yc = _r + 1;
-      _vy = -_vy;
-   }
-
-   xc[index] = _xc;
-   yc[index] = _yc;
-   vx[index] = _vx;
-   vy[index] = _vy;
-   int _color = color[index];
-   drawBall(_xc, _yc, _r, _color);
 }
 
-void main()
+
+void updateParams(int num)
 {
+num=slider1;
+ if(num>nb_balls)
+   {
+      
+      num=nb_balls;
+   }
+   if(num<=0)
+   {
+      num=1;
+   }
+}
+
+ball Balls[nb_balls];
+ball tmpball;
+
+void init()
+{
+   for(int i=0;i<nb_balls;i++)
+   {
+      tmpball.vx = rand(300)/255+0.5;
+      dp(tmpball.vx);
+      tmpball.vy = rand(280)/255+0.3;
+      tmpball.r = (rmax-rmin)*(rand(280)/180) +rmin;
+      tmpball.xc = width/2*(rand(280)/255+0.3)+15;
+      tmpball.yc = height/2*(rand(280)/255+0.3)+15;
+      
+      tmpball.color = rand(255);
+      Balls[i]=tmpball;
+   }  
+}
+
+void main(int num)
+{
+
 resetStat();
-//cc=CRGB(255,0,0);
-for(int i=0;i<nb_balls;i++)
-{
-   vx[i] = rand(280)/255+0.7;
-   vy[i] = rand(280)/255+0.5;
-   r[i] = (rmax-rmin)*(rand(280)/180) +rmin;
-   xc[i] = width/2*(rand(280)/255+0.3)+15;
-   yc[i] = height/2*(rand(280)/255+0.3)+15;
-   
-   color[i] = rand(255);
-}  
 
 
 
-   
+init();
+
+
+    
    uint32_t h = 1;
 
   
    while (h > 0)
    {
-      //clear();
+
      for(int i=0;i<width;i++)
      {
         for(int j=0;j<height;j++)
@@ -129,14 +144,16 @@ for(int i=0;i<nb_balls;i++)
            leds[i+panel_width*j]=hsv(i+h+j,255,180);
         }
      }
-      for (int i = 0; i < nb_balls; i++)
+     updateParams(2);
+      for (int i = 0; i < num; i++)
       {
-         updateBall(i);
-        // drawBall(1,1,1,CRGB(255,255,255));
+
+
+
+Balls[i].updateBall();
       }
 
-      //}
-      // }
-      show();
+      sync();
+      h++;
    }
 }
